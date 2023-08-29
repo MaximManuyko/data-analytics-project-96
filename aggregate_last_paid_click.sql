@@ -35,13 +35,13 @@ WITH RankedLeads AS (
     LEFT JOIN Leads 
     ON Sessions.Visitor_Id = Leads.Visitor_Id
 	LEFT JOIN vk_ads ON 
-    	sessions.visit_date = vk_ads.campaign_date AND
+    	DATE_TRUNC('day', sessions.visit_date) = DATE_TRUNC('day', vk_ads.campaign_date) AND
     	sessions.source = vk_ads.utm_source AND
     	sessions.medium = vk_ads.utm_medium AND 
     	sessions.campaign = vk_ads.utm_campaign and
     	Sessions.content =  vk_ads.utm_content 
 	LEFT JOIN ya_ads ON 
-    	sessions.visit_date = ya_ads.campaign_date AND
+    	DATE_TRUNC('day', sessions.visit_date) = DATE_TRUNC('day', ya_ads.campaign_date) AND
     	sessions.source = ya_ads.utm_source AND
     	sessions.medium = ya_ads.utm_medium AND 
     	sessions.campaign = ya_ads.utm_campaign and
@@ -91,13 +91,13 @@ WITH RankedLeads AS (
     LEFT JOIN Leads 
     ON Sessions.Visitor_Id = Leads.Visitor_Id
 	LEFT JOIN vk_ads ON 
-    	sessions.visit_date = vk_ads.campaign_date AND
+    	DATE_TRUNC('day', sessions.visit_date) = DATE_TRUNC('day', vk_ads.campaign_date) AND
     	sessions.source = vk_ads.utm_source AND
     	sessions.medium = vk_ads.utm_medium AND 
     	sessions.campaign = vk_ads.utm_campaign and
     	Sessions.content =  vk_ads.utm_content 
 	LEFT JOIN ya_ads ON 
-    	sessions.visit_date = ya_ads.campaign_date AND
+    	DATE_TRUNC('day', sessions.visit_date) = DATE_TRUNC('day', ya_ads.campaign_date) AND
     	sessions.source = ya_ads.utm_source AND
     	sessions.medium = ya_ads.utm_medium AND 
     	sessions.campaign = ya_ads.utm_campaign and
