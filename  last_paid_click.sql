@@ -61,7 +61,38 @@ WITH RankedLeads AS (
     LEFT JOIN Leads ON Sessions.Visitor_Id = Leads.Visitor_Id
     WHERE Sessions.Medium IN ('cpc', 'cpm', 'cpa', 'youtube', 'cpp', 'tg')
 )
+SELECT
+    Visitor_Id,
+    Visit_Date,
+    Utm_Source,
+    Utm_Medium,
+    Utm_Campaign,
+    Lead_Id,
+    Created_At,
+    Amount,
+    Closing_Reason,
+    Status_Id
+FROM RankedLeads
+WHERE Rn = 1;
 
+--Сохраните на Github в файл last_paid_click.csv топ-10 записей по amount
+WITH RankedLeads AS (
+    SELECT
+        Sessions.Visitor_Id,
+        Visit_Date,
+        Source AS Utm_Source,
+        Medium AS Utm_Medium,
+        Campaign AS Utm_Campaign,
+        Lead_Id,
+        Created_At,
+        Amount,
+        Closing_Reason,
+        Status_Id,
+        ROW_NUMBER() OVER (PARTITION BY Lead_Id ORDER BY Visit_Date DESC) AS Rn
+    FROM Sessions
+    LEFT JOIN Leads ON Sessions.Visitor_Id = Leads.Visitor_Id
+    WHERE Sessions.Medium IN ('cpc', 'cpm', 'cpa', 'youtube', 'cpp', 'tg')
+)
 SELECT
     Visitor_Id,
     Visit_Date,
