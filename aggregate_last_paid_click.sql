@@ -17,7 +17,7 @@
 WITH RankedLeads AS (
     SELECT
         Sessions.Visitor_Id,
-        TO_CHAR(Visit_Date, 'YYYY-MM-DD') AS Visit_Date,
+        DATE_TRUNC('day', sessions.visit_date) AS Visit_Date,
         Source AS Utm_Source,
         Medium AS Utm_Medium,
         Campaign AS Utm_Campaign,
@@ -54,7 +54,7 @@ WITH RankedLeads AS (
 		where Rn = 1
 )
 select
-	visit_date,
+	TO_CHAR(Visit_Date, 'YYYY-MM-DD') AS Visit_Date,
 	utm_source,
     utm_medium,
     utm_campaign,
