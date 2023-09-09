@@ -1,4 +1,3 @@
--- Создание витрины
 --В этом задании построим витрину для модели атрибуции Last Paid Click. Витрина должна содержать следующие данные
 
 --visitor_id — уникальный человек на сайте
@@ -17,97 +16,57 @@
 --youtube
 --cpp
 --tg
+--social
+
 --Требования
 --Отсортируйте данные по полям
 
+--amount — от большего к меньшему, null записи идут последними
 --visit_date — от ранних к поздним
 --utm_source, utm_medium, utm_campaign — в алфавитном порядке
 
+--Код удаляет delete через создание WITH
+with tab as (
+    select
+        sessions.visitor_id,
+        visit_date,
+        source,
+        medium,
+        campaign,
+        created_at,
+        amount,
+        closing_reason,
+        status_id,
+        case
+            when created_at < visit_date then 'delete' else lead_id
+        end as lead_id,
+        ROW_NUMBER()
+            over (partition by sessions.visitor_id order by visit_date desc)
+        as rn
+    from sessions
+    left join leads
+        on sessions.visitor_id = leads.visitor_id
+    where medium in ('cpc', 'cpm', 'cpa', 'youtube', 'cpp', 'tg', 'social')
+)
+
 select
-	sessions.visitor_id,
-	visit_date,
-	source AS utm_source,
-	medium as utm_medium,
-	campaign as utm_campaign,
-	lead_id,
-	created_at,
-	amount,
-	closing_reason,
-	status_id
-from sessions
-left join leads
-on leads.visitor_id = sessions.visitor_id
-where sessions.medium in ('cpc', 'cpm', 'cpa', 'youtube', 'cpp', 'tg')
-order by visit_date, source, medium, campaign
-
--------------
-
---Напишите запрос для атрибуции лидов по модели Last Paid Click
-
-WITH RankedLeads AS (
-    SELECT
-        Sessions.Visitor_Id,
-        Visit_Date,
-        Source AS Utm_Source,
-        Medium AS Utm_Medium,
-        Campaign AS Utm_Campaign,
-        Lead_Id,
-        Created_At,
-        Amount,
-        Closing_Reason,
-        Status_Id,
-        ROW_NUMBER() OVER (PARTITION BY Lead_Id ORDER BY Visit_Date DESC) AS Rn
-    FROM Sessions
-    LEFT JOIN Leads ON Sessions.Visitor_Id = Leads.Visitor_Id
-    WHERE Sessions.Medium IN ('cpc', 'cpm', 'cpa', 'youtube', 'cpp', 'tg')
-)
-SELECT
-    Visitor_Id,
-    Visit_Date,
-    Utm_Source,
-    Utm_Medium,
-    Utm_Campaign,
-    Lead_Id,
-    Created_At,
-    Amount,
-    Closing_Reason,
-    Status_Id
-FROM RankedLeads
-WHERE Rn = 1;
-
---Сохраните на Github в файл last_paid_click.csv топ-10 записей по amount
-WITH RankedLeads AS (
-    SELECT
-        Sessions.Visitor_Id,
-        Visit_Date,
-        Source AS Utm_Source,
-        Medium AS Utm_Medium,
-        Campaign AS Utm_Campaign,
-        Lead_Id,
-        Created_At,
-        Amount,
-        Closing_Reason,
-        Status_Id,
-        ROW_NUMBER() OVER (PARTITION BY Lead_Id ORDER BY Visit_Date DESC) AS Rn
-    FROM Sessions
-    LEFT JOIN Leads ON Sessions.Visitor_Id = Leads.Visitor_Id
-    WHERE Sessions.Medium IN ('cpc', 'cpm', 'cpa', 'youtube', 'cpp', 'tg')
-)
-SELECT
-    Visitor_Id,
-    Visit_Date,
-    Utm_Source,
-    Utm_Medium,
-    Utm_Campaign,
-    Lead_Id,
-    Created_At,
-    Amount,
-    Closing_Reason,
-    Status_Id
-FROM RankedLeads
-WHERE Rn = 1 AND Amount IS NOT NULL
-ORDER BY Amount DESC
-LIMIT 10;
-
-
-
+    tab.visitor_id,
+    tab.visit_date,
+    tab.source as utm_source,
+    tab.medium as utm_medium,
+    tab.campaign as utm_campaign,
+    tab.created_at,
+    tab.amount,
+    tab.closing_reason,
+    tab.status_id,
+    case
+        when tab.created_at < tab.visit_date then 'delete' else lead_id
+    end as lead_id
+from tab
+where (tab.lead_id != 'delete' or tab.lead_id is null) and tab.rn = 1
+order by
+    tab.amount desc nulls last,
+    tab.visit_date asc,
+    utm_source asc,
+    utm_medium asc,
+    utm_campaign asc
