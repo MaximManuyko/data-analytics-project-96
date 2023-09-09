@@ -14,7 +14,7 @@ revenue — деньги с успешно закрытых лидов
 revenue — от большего к меньшему, null записи идут последними
 visit_date — от ранних к поздним
 visitors_count — в убывающем порядке
-utm_source, utm_medium, utm_campaign — в алфавитном порядке/*
+utm_source, utm_medium, utm_campaign — в алфавитном порядке*/
 
 with tab as (
     select
