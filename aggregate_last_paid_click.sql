@@ -23,26 +23,24 @@ utm_source, utm_medium, utm_campaign — в алфавитном порядке
 */
 
 with tab as (
-    select
-        sessions.visitor_id,
-        visit_date,
-        source,
-        medium,
-        campaign,
-        created_at,
-        closing_reason,
-        status_id,
-        coalesce(amount, 0) as amount,
-        case
-            when created_at < visit_date then 'delete' else lead_id
-        end as lead_id,
-        row_number()
-            over (partition by sessions.visitor_id order by visit_date desc)
-        as rn
-    from sessions
-    left join leads
-        on sessions.visitor_id = leads.visitor_id
-    where medium in ('cpc', 'cpm', 'cpa', 'youtube', 'cpp', 'tg', 'social')
+select
+    sessions.visitor_id,
+    visit_date,
+    source,
+    medium,
+    campaign,
+    created_at,
+    amount,
+    closing_reason,
+    status_id,
+    lead_id,
+    ROW_NUMBER()
+        over (partition by sessions.visitor_id order by visit_date desc) as rn
+from sessions
+left join leads
+    on sessions.visitor_id = leads.visitor_id
+    and visit_date <= created_at
+WHERE medium in ('cpc', 'cpm', 'cpa', 'youtube', 'cpp', 'tg', 'social')
 ),
 
 tab2 as (
@@ -56,11 +54,9 @@ tab2 as (
         tab.closing_reason,
         tab.status_id,
         date_trunc('day', tab.visit_date) as visit_date,
-        case
-            when tab.created_at < tab.visit_date then 'delete' else lead_id
-        end as lead_id
+        lead_id
     from tab
-    where (tab.lead_id != 'delete' or tab.lead_id is null) and tab.rn = 1
+    where tab.rn = 1
 ),
 
 amount as (
