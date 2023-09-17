@@ -44,9 +44,9 @@ with sessions_leads as (
     where medium in ('cpc', 'cpm', 'cpa', 'youtube', 'cpp', 'tg', 'social')
 ),
 
-revenue as (
+revenue_vk_ads_ya_ads as (
     select
-        visit_date,
+        DATE_TRUNC('day', visit_date) as visit_date,
         utm_source,
         utm_medium,
         utm_campaign,
@@ -60,7 +60,8 @@ revenue as (
                 else 0
             end
         ) as purchases_count,
-        SUM(amount) as revenue
+        SUM(amount) as revenue,
+        null as total_cost
     from sessions_leads
     where sessions_leads.rn = 1
     group by
@@ -68,39 +69,10 @@ revenue as (
         utm_source,
         utm_medium,
         utm_campaign
-),
-
-vk_ads_ya_ads as (
-    select
-        campaign_date as visit_date,
-        utm_source,
-        utm_medium,
-        utm_campaign,
-        SUM(daily_spent) as total_cost
-    from vk_ads
-    group by
-        visit_date,
-        utm_source,
-        utm_medium,
-        utm_campaign
     union all
+
     select
         campaign_date as visit_date,
-        utm_source,
-        utm_medium,
-        utm_campaign,
-        SUM(daily_spent) as total_cost
-    from ya_ads
-    group by
-        visit_date,
-        utm_source,
-        utm_medium,
-        utm_campaign
-),
-
-total_cost_revenue as (
-    select
-        visit_date,
         utm_source,
         utm_medium,
         utm_campaign,
@@ -108,20 +80,20 @@ total_cost_revenue as (
         null as visitors_count,
         null as leads_count,
         null as purchases_count,
-        total_cost
-    from vk_ads_ya_ads
+        daily_spent as total_cost
+    from vk_ads
     union all
     select
-        DATE_TRUNC('day', visit_date) as visit_date,
+        campaign_date as visit_date,
         utm_source,
         utm_medium,
         utm_campaign,
-        revenue,
-        visitors_count,
-        leads_count,
-        purchases_count,
-        null as total_cost
-    from revenue
+        null as revenue,
+        null as visitors_count,
+        null as leads_count,
+        null as purchases_count,
+        daily_spent as total_cost
+    from ya_ads
 )
 
 select
@@ -134,7 +106,7 @@ select
     SUM(leads_count) as leads_count,
     SUM(purchases_count) as purchases_count,
     SUM(revenue) as revenue
-from total_cost_revenue
+from revenue_vk_ads_ya_ads
 group by
     visit_date,
     utm_source,
@@ -146,4 +118,4 @@ order by
     visitors_count desc,
     utm_source asc,
     utm_medium asc,
-    utm_campaign asc
+    utm_campaign asc;
