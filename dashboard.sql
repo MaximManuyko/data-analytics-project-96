@@ -929,3 +929,80 @@ select *,
     CASE WHEN total_cost = 0 THEN NULL ELSE ((revenue - total_cost) / total_cost) * 100 END AS roi
 FROM tab6
 order by roi
+
+--запрос на расчет времени закрытия 90% лидов.
+WITH tab AS (
+    SELECT
+        sessions.visitor_id,
+        visit_date,
+        source,
+        medium,
+        campaign,
+        created_at,
+        closing_reason,
+        status_id,
+        lead_id,
+        COALESCE(amount, 0) AS amount,
+        ROW_NUMBER()
+            OVER (PARTITION BY sessions.visitor_id ORDER BY visit_date DESC)
+        AS rn
+    FROM sessions
+    LEFT JOIN leads
+        ON
+            sessions.visitor_id = leads.visitor_id
+            AND visit_date <= created_at
+    WHERE medium IN ('cpc', 'cpm', 'cpa', 'youtube', 'cpp', 'tg', 'social')
+)
+
+SELECT
+    tab.visit_date,
+    tab.created_at,
+    tab.lead_id,
+    tab.created_at - tab.visit_date AS day,
+    (
+        SELECT
+            PERCENTILE_DISC(0.9) WITHIN GROUP (
+                ORDER BY created_at - visit_date
+            ) AS percentile_90
+        FROM tab
+        WHERE tab.rn = 1 AND status_id = 142
+    ) AS "90th Percentile"
+FROM tab
+WHERE tab.rn = 1 AND tab.status_id = 142
+ORDER BY day;
+--запрос на расчет времени закрытия 90% лидов(Версия 2).
+WITH tab AS (
+    SELECT
+        sessions.visitor_id,
+        visit_date,
+        source,
+        medium,
+        campaign,
+        created_at,
+        closing_reason,
+        status_id,
+        lead_id,
+        COALESCE(amount, 0) AS amount,
+        ROW_NUMBER()
+            OVER (PARTITION BY sessions.visitor_id ORDER BY visit_date DESC)
+        AS rn,
+        created_at - visit_date AS day
+    FROM sessions
+    LEFT JOIN leads
+        ON
+            sessions.visitor_id = leads.visitor_id
+            AND visit_date <= created_at
+    WHERE medium IN ('cpc', 'cpm', 'cpa', 'youtube', 'cpp', 'tg', 'social')
+)
+
+SELECT
+    tab.visit_date,
+    tab.created_at,
+    tab.lead_id,
+    tab.day,
+    NTILE(10) OVER (ORDER BY tab.day) AS group_num
+FROM tab
+WHERE
+    tab.rn = 1
+    AND tab.status_id = 142
+ORDER BY tab.day;
