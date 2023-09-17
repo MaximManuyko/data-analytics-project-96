@@ -144,11 +144,11 @@ tab5 as (
 )
 
 select
-    visit_date,
+    TO_CHAR(visit_date, 'YYYY-MM-DD') AS visit_date,
+    sum(coalesce(visitors_count, 0)) as visitors_count,
     utm_source,
     utm_medium,
     utm_campaign,
-    sum(coalesce(visitors_count, 0)) as visitors_count,
     sum(coalesce(total_cost, 0)) as total_cost,
     sum(coalesce(leads_count, 0)) as leads_count,
     sum(coalesce(purchases_count, 0)) as purchases_count,
