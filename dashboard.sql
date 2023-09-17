@@ -1,5 +1,5 @@
 --Расчёт общего количества визитов
-SELECT sum(count) AS "SUM(count)"
+SELECT sum(count) AS visitors_count
 FROM
     (SELECT
         sessions.source,
@@ -22,7 +22,7 @@ from sessions
 --Ежедневные визиты
 SELECT
     date AS date,
-    sum(count) AS "SUM(count)"
+    sum(count) AS visitors_count
 FROM
     (SELECT
         sessions.source,
@@ -36,13 +36,13 @@ FROM
         sessions.medium
     ORDER BY date) AS virtual_table
 GROUP BY date
-ORDER BY "SUM(count)" DESC
+ORDER BY visitors_count DESC
 
 
 --Визиты по неделям
 SELECT
     monday_date AS monday_date,
-    sum(count) AS "SUM(count)"
+    sum(count) AS visitors_count
 FROM
     (SELECT
         sessions.source,
@@ -56,13 +56,13 @@ FROM
         sessions.medium
     ORDER BY monday_date) AS virtual_table
 GROUP BY monday_date
-ORDER BY "SUM(count)" DESC
+ORDER BY visitors_count DESC
 
 
 --Визиты по дням недели
 SELECT
     day_of_week_combined AS day_of_week_combined,
-    sum(count) AS "SUM(count)"
+    sum(count) AS visitors_count
 FROM
     (SELECT
         sessions.source,
@@ -80,13 +80,13 @@ FROM
         sessions.medium
     ORDER BY day_of_week_combined) AS virtual_table
 GROUP BY day_of_week_combined
-ORDER BY "SUM(count)" DESC
+ORDER BY visitors_count DESC
 
 
 --ТОП 10 Source по количеству визитов
 SELECT
     source AS source,
-    sum(count) AS "SUM(count)"
+    sum(count) AS visitors_count
 FROM
     (SELECT
         sessions.source,
@@ -101,14 +101,14 @@ FROM
         sessions.medium
     ORDER BY date) AS virtual_table
 GROUP BY source
-ORDER BY "SUM(count)" DESC
+ORDER BY visitors_count DESC
 LIMIT 10
 
 
 --ТОП 10 medium по количеству визитов
 SELECT
     medium AS medium,
-    sum(count) AS "SUM(count)"
+    sum(count) AS visitors_count
 FROM
     (SELECT
         sessions.source,
@@ -123,11 +123,11 @@ FROM
         sessions.medium
     ORDER BY date) AS virtual_table
 GROUP BY medium
-ORDER BY "SUM(count)" DESC
+ORDER BY visitors_count DESC
 
 
 --Количество лидов
-SELECT sum(leed) AS "SUM(leed)"
+SELECT sum(leed) AS leads_count
 FROM
     (SELECT
         1 AS leed,
@@ -143,7 +143,7 @@ FROM
 
 
 --Количество Purchases_count
-SELECT sum(leed_amount) AS "SUM(leed_amount)"
+SELECT sum(leed_amount) AS Purchases_count
 FROM
     (SELECT
         1 AS leed,
@@ -159,7 +159,7 @@ FROM
 
 
 --Процент лидов совершивших покупку к общему количеству лидов (Конверсия)
-SELECT SUM(leed_amount) * 100 / SUM(leed) AS "SUM(leed_amount)*100/SUM(leed)"
+SELECT SUM(leed_amount) * 100 / SUM(leed) AS "Purchases_count/leads_count"
 FROM
     (SELECT
         1 AS leed,
@@ -175,7 +175,7 @@ FROM
 
 
 --Доход
-SELECT sum(amount) AS "SUM(amount)"
+SELECT sum(amount) AS revenue
 FROM
     (SELECT
         1 AS leed,
@@ -191,7 +191,7 @@ FROM
 
 
 --Средний чек
-SELECT AVG(amount) AS "AVG(amount)"
+SELECT AVG(amount) AS AVG_chek
 FROM
     (SELECT
         1 AS leed,
@@ -210,7 +210,7 @@ WHERE amount > 0
 --Ежедневные продажи
 SELECT
     date AS date,
-    sum(amount) AS "SUM(amount)"
+    sum(amount) AS revenue
 FROM
     (SELECT
         1 AS leed,
@@ -224,11 +224,11 @@ FROM
     FROM leads
     ORDER BY date) AS virtual_table
 GROUP BY date
-ORDER BY "SUM(amount)" DESC
+ORDER BY date asc
 
 
 --Расходы
-SELECT sum(total_daily_spent) AS "SUM(total_daily_spent)"
+SELECT sum(total_daily_spent) AS consumption
 FROM
     (
         SELECT
@@ -270,7 +270,7 @@ FROM
 
 
 --Расходы на yandex
-SELECT sum(total_daily_spent) AS "SUM(total_daily_spent)"
+SELECT sum(total_daily_spent) AS consumption_ya
 FROM
     (
         SELECT
@@ -313,7 +313,7 @@ WHERE utm_source IN ('yandex')
 
 
 --Расходы на vk
-SELECT sum(total_daily_spent) AS "SUM(total_daily_spent)"
+SELECT sum(total_daily_spent) AS consumption_vk
 FROM
     (
         SELECT
@@ -358,7 +358,7 @@ WHERE utm_source IN ('vk')
 --Расходы по utm_source
 SELECT
     utm_source AS utm_source,
-    sum(total_daily_spent) AS "SUM(total_daily_spent)"
+    sum(total_daily_spent) AS consumption_utm_source
 FROM
     (
         SELECT
@@ -398,13 +398,13 @@ FROM
             campaign_date
     ) AS virtual_table
 GROUP BY utm_source
-ORDER BY "SUM(total_daily_spent)" DESC
+ORDER BY consumption_utm_source DESC
 
 
 --Расходы по yandex utm_medium
 SELECT
-    utm_medium AS utm_medium,
-    sum(total_daily_spent) AS "SUM(total_daily_spent)"
+    utm_medium AS consumption_utm_medium_ya,
+    sum(total_daily_spent) AS consumption_consumption_utm_source
 FROM
     (
         SELECT
@@ -445,13 +445,13 @@ FROM
     ) AS virtual_table
 WHERE utm_source IN ('yandex')
 GROUP BY utm_medium
-ORDER BY "SUM(total_daily_spent)" DESC
+ORDER BY consumption_utm_medium_ya DESC
 
 
 --Расходы vk по utm_medium
 SELECT
     utm_medium AS utm_medium,
-    sum(total_daily_spent) AS "SUM(total_daily_spent)"
+    sum(total_daily_spent) AS consumption_utm_medium_vk
 FROM
     (
         SELECT
@@ -492,13 +492,13 @@ FROM
     ) AS virtual_table
 WHERE utm_source IN ('vk')
 GROUP BY utm_medium
-ORDER BY "SUM(total_daily_spent)" DESC
+ORDER BY consumption_utm_medium_vk DESC
 
 
 --Ежедневные расходы
 SELECT
     DATE_TRUNC('day', campaign_date) AS campaign_date,
-    SUM(total_daily_spent) AS "SUM(total_daily_spent)"
+    SUM(total_daily_spent) AS total_daily_spent
 FROM
     (
         SELECT
@@ -538,13 +538,13 @@ FROM
             campaign_date
     ) AS virtual_table
 GROUP BY DATE_TRUNC('day', campaign_date)
-ORDER BY "SUM(total_daily_spent)" DESC
+ORDER BY total_daily_spent DESC
 
 
 --Расходы по utm_campaign
 SELECT
     utm_campaign AS utm_campaign,
-    sum(total_daily_spent) AS "SUM(total_daily_spent)"
+    sum(total_daily_spent) AS total_daily_spent_utm_campaign
 FROM
     (
         SELECT
@@ -584,7 +584,7 @@ FROM
             campaign_date
     ) AS virtual_table
 GROUP BY utm_campaign
-ORDER BY "SUM(total_daily_spent)" DESC
+ORDER BY total_daily_spent_utm_campaign DESC
 
 
 --Расходы по utm_content
@@ -613,7 +613,7 @@ FROM
 
 SELECT
     metric AS metric,
-    sum(count) AS "SUM(count)"
+    sum(count) AS sm_cn
 FROM
     (SELECT
         'Visits' AS metric,
