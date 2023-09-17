@@ -55,13 +55,13 @@ select
     tab.source as utm_source,
     tab.medium as utm_medium,
     tab.campaign as utm_campaign,
+    case
+        when tab.created_at < tab.visit_date then 'delete' else lead_id
+    end as lead_id,
     tab.created_at,
     tab.amount,
     tab.closing_reason,
-    tab.status_id,
-    case
-        when tab.created_at < tab.visit_date then 'delete' else lead_id
-    end as lead_id
+    tab.status_id
 from tab
 where (tab.lead_id != 'delete' or tab.lead_id is null) and tab.rn = 1
 order by
@@ -70,3 +70,5 @@ order by
     utm_source asc,
     utm_medium asc,
     utm_campaign asc
+    
+
