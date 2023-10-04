@@ -1,5 +1,6 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/MaximManuyko/data-analytics-project-96/workflows/hexlet-check/badge.svg)](https://github.com/MaximManuyko/data-analytics-project-96/actions)
+
 Цель
 
 Сквозная аналитика (или сквозной анализ) – это подход к анализу данных, который позволяет связать информацию и взаимодействия с пользователями через разные каналы и точки контакта. Она направлена на интеграцию и анализ данных из различных источников, чтобы предоставить комплексное представление о поведении пользователей и эффективности маркетинговых усилий.
